@@ -10,4 +10,4 @@ COPY --from=mavenbuild target/*.jar /
 EXPOSE 8080
 RUN mkdir -p /img_db
 #RUN bash -c 'touch scrum-test-docker.jar'
-ENTRYPOINT ["java", "-jar", "-Dspring.data.mongodb.host=main-db", "-Dspring.redis.host=cache-db", "/dentist-api.jar"]
+ENTRYPOINT ["java", "-jar", "/dentist-api.jar"]

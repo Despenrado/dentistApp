@@ -2,7 +2,7 @@ version: "3.5"
 services:
   main-db:
     container_name: dentist-mongodb # Container name
-    image: mongo # image name to start/build
+    image: mongo:5.0 # image name to start/build
     ports: # Port mapping
       - 27017:27017
     volumes: # Volume binding

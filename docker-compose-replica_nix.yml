@@ -1,0 +1,99 @@
+version: "3.5"
+services:
+  mongodb1:
+    image: mongo:5.0
+    # restart: always
+    container_name: dentist-mongodb1
+    volumes:
+    - ~database/mongo/dentist/r0:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27017:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+    # networks:
+    #   custom_macvlan:
+    #     ipv4_address: 192.168.0.12
+
+  mongodb2:
+    image: mongo:5.0
+    # restart: always
+    container_name: dentist-mongodb2
+    volumes:
+    - ~database/mongo/dentist/r1:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27018:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+    # networks:
+    #   custom_macvlan:
+    #     ipv4_address: 192.168.0.13
+
+  mongodb3:
+    image: mongo:5.0
+    # restart: always
+    container_name: dentist-mongodb3
+    volumes:
+    - ~database/mongo/dentist/r2:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27019:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+    # networks:
+    #   custom_macvlan:
+    #     ipv4_address: 192.168.0.14
+
+  mongosetup:
+    image: "mongo-setup"
+    build: "./mongo"
+    container_name: "mongosetup"
+    depends_on:
+      - mongodb1
+      - mongodb2
+      - mongodb3
+    volumes:
+      - ./mongo:/data/
+
+  cache-db:
+    container_name: dentist-redis
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ~/example/redis/data:/data
+
+  spring-WebAPI: # The name of the service
+    build:
+      context: ./Spring_API # Location of Dockerfile
+      dockerfile: Dockerfile
+    container_name: dentist-spring-WebAPI
+    image: dentist-spring-webapi:dev.1
+    depends_on: # start after
+      - mongosetup
+      - cache-db
+    ports:
+      - 8080:8080
+    links: # list mapping: service_name:name_how_will_see_your_program
+      - mongodb1
+      - mongodb2
+      - mongodb3
+      - cache-db
+    volumes:
+      - ./Spring_API/img_db/:/img_db
+      
+  # angular-WebUI:
+  #   build:
+  #     context: ./Angular_UI
+  #     dockerfile: Dockerfile
+  #   container_name: dentist-angular-webui
+  #   image: dentist-angular-webui:dev.1
+  #   ports:
+  #     - "80:80"
+    # links:
+    #   - spring-WebAPI
+# networks:
+#   custom_macvlan:
+#     external: true
+

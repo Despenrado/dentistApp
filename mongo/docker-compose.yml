@@ -1,0 +1,62 @@
+version: "3.5"
+services:
+  mongodb1:
+    image: mongo:5.0
+    restart: always
+    container_name: dentist-mongodb1
+    volumes:
+    - ~database/mongo/dentist/r0:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27017:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+
+  mongodb2:
+    image: mongo:5.0
+    restart: always
+    container_name: dentist-mongodb2
+    volumes:
+    - ~database/mongo/dentist/r1:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27018:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+
+  mongodb3:
+    image: mongo:5.0
+    restart: always
+    container_name: dentist-mongodb3
+    volumes:
+    - ~database/mongo/dentist/r2:/data/db
+    expose:
+    - "27017"
+    ports: # Port mapping
+      - 27019:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rsmongo"]
+
+  mongosetup:
+    image: "mongo-setup"
+    build: "."
+    container_name: "mongosetup"
+    depends_on:
+      - mongodb1
+      - mongodb2
+      - mongodb3
+    volumes:
+      - .:/data/
+
+  adminmongo:
+    image: mrvautin/adminmongo
+    ports:
+      - 1234:1234
+    environment:
+      - HOST=0.0.0.0
+  
+
+# volumes:
+#   mongodata1:
+#   mongodata2:
+#   mongodata3:
+#   mongostatus:

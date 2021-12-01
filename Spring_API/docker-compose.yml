@@ -1,19 +1,5 @@
 version: "3.5"
 services:
-  main-db:
-    container_name: dentist-mongodb # Container name
-    image: mongo # image name to start/build
-    ports: # Port mapping
-      - 27017:27017
-    volumes: # Volume binding
-      - "c:/data/db:/data/db"
-  cache-db:
-    container_name: dentist-redis
-    image: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - "c:/data/redis/data:/data"
   spring-WebAPI: # The name of the service
     build:
       context: . # Location of Dockerfile
